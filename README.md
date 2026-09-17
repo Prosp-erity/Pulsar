@@ -155,6 +155,96 @@ For live trading with MetaTrader 5:
    npm start
    ```
 
+## Running on Termux (Android)
+
+Pulsar can run on Termux for mobile trading on Android devices.
+
+### Prerequisites
+- [Termux](https://termux.com/) installed (F-Droid version recommended)
+- Termux:API app (optional, for notifications)
+
+### Setup
+
+1. **Install dependencies in Termux:**
+   ```bash
+   pkg update && pkg upgrade
+   pkg install nodejs git sqlite
+   ```
+
+2. **Install Bun (recommended for better performance):**
+   ```bash
+   curl -fsSL https://bun.sh/install | bash
+   ```
+
+3. **Clone and setup Pulsar:**
+   ```bash
+   git clone https://github.com/Prosp-erity/Pulsar.git
+   cd Pulsar
+   bun install
+   ```
+
+4. **Update .env for Termux:**
+   ```bash
+   echo "DATABASE_URL=file:./db/pulsar.db" > .env
+   ```
+
+5. **Initialize database:**
+   ```bash
+   bun run db:generate
+   bun run db:push
+   ```
+
+6. **Build and run:**
+   ```bash
+   bun run build
+   bun run start
+   ```
+
+### Running in Background
+
+Use `tmux` to keep the server running after closing Termux:
+
+1. Install tmux:
+   ```bash
+   pkg install tmux
+   ```
+
+2. Start a new tmux session:
+   ```bash
+   tmux new -s pulsar
+   ```
+
+3. Run the app inside tmux:
+   ```bash
+   bun run start
+   ```
+
+4. Detach from tmux (press Ctrl+B, then D)
+
+5. Reattach later:
+   ```bash
+   tmux attach -t pulsar
+   ```
+
+### Accessing the App
+
+- On your Android device: `http://localhost:3000`
+- From other devices on the same network: `http://<your-device-ip>:3000`
+
+### Tips for Termux
+
+- Use `termux-wake-lock` to prevent the device from sleeping:
+  ```bash
+  pkg install termux-api
+  termux-wake-lock
+  ```
+- To find your local IP:
+  ```bash
+  ifconfig | grep "inet addr" | grep -v 127.0.0.1
+  ```
+- For better performance, use Bun instead of Node.js
+- Storage is limited; monitor disk usage with `df -h`
+
 ## Scripts
 
 | Script | Description |
