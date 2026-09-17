@@ -4,6 +4,9 @@ import ZAI from "z-ai-web-dev-sdk";
 
 interface AssistantRequest {
   message: string;
+  modelProvider?: "zai" | "openrouter" | "nvidia";
+  openrouterKey?: string;
+  nvidiaKey?: string;
   appState: {
     running: boolean;
     equity: number;
@@ -126,7 +129,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as AssistantRequest;
 
-    const zai = await ZAI.create();
+    const provider = body.modelProvider || "zai";
 
     const userContent = `User message: "${body.message}"
 
@@ -162,16 +165,61 @@ Current view: ${body.appState.activeView}
 Per-strategy pair config:
 ${body.appState.pairs.map(p => `${p.symbol}: ${Object.entries(p.strategies).filter(([k,v]) => v).map(([k]) => k).join(", ") || "none"}`).join("\n")}`;
 
-    const response = await zai.chat.completions.create({
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userContent },
-      ],
-      temperature: 0.3,
-      max_tokens: 500,
-    });
+    let content = "";
 
-    const content = response.choices[0]?.message?.content || "";
+    if (provider === "openrouter" && body.openrouterKey) {
+      // Call OpenRouter API
+      const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${body.openrouterKey}`,
+        },
+        body: JSON.stringify({
+          model: "anthropic/claude-3.5-sonnet",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userContent },
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+        }),
+      });
+      const orData = await orRes.json();
+      content = orData.choices?.[0]?.message?.content || "";
+    } else if (provider === "nvidia" && body.nvidiaKey) {
+      // Call NVIDIA API
+      const nvRes = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${body.nvidiaKey}`,
+        },
+        body: JSON.stringify({
+          model: "nvidia/llama-3.1-nemotron-70b-instruct",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userContent },
+          ],
+          temperature: 0.3,
+          max_tokens: 500,
+        }),
+      });
+      const nvData = await nvRes.json();
+      content = nvData.choices?.[0]?.message?.content || "";
+    } else {
+      // Default: ZAI
+      const zai = await ZAI.create();
+      const response = await zai.chat.completions.create({
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userContent },
+        ],
+        temperature: 0.3,
+        max_tokens: 500,
+      });
+      content = response.choices[0]?.message?.content || "";
+    }
 
     // Try to parse as JSON
     try {

@@ -1,6 +1,7 @@
 "use client";
 
-import { Activity, Pause, Play, RotateCcw, Zap } from "lucide-react";
+import { useState } from "react";
+import { Activity, Contrast, Moon, Pause, Play, RotateCcw, Sun, Zap } from "lucide-react";
 import { useTradingStore, selectEquity, selectUnrealizedPnl } from "@/lib/store/trading-store";
 import { fmtUsd, fmtPct } from "@/lib/trading/engine";
 import { Button } from "@/components/ui/button";
@@ -9,8 +10,19 @@ import { TopTabs } from "./Navigation";
 import { SessionPersistence } from "./SessionPersistence";
 import { useHydrated } from "@/hooks/use-hydrated";
 
+type Theme = "dark" | "light" | "contrast";
+
+function applyTheme(theme: Theme) {
+  const html = document.documentElement;
+  html.classList.remove("dark", "high-contrast");
+  if (theme === "dark") html.classList.add("dark");
+  else if (theme === "contrast") html.classList.add("high-contrast");
+  // light = no class needed (defaults)
+}
+
 export function Header() {
   const hydrated = useHydrated();
+  const [theme, setTheme] = useState<Theme>("dark");
   const running = useTradingStore((s) => s.running);
   const toggleEngine = useTradingStore((s) => s.toggleEngine);
   const resetEngine = useTradingStore((s) => s.resetEngine);
@@ -140,6 +152,20 @@ export function Header() {
               className="h-8 w-8 p-0 border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground"
             >
               <RotateCcw className="w-3.5 h-3.5" />
+            </Button>
+            {/* Theme toggle */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const next = theme === "dark" ? "contrast" : theme === "contrast" ? "light" : "dark";
+                setTheme(next);
+                applyTheme(next);
+              }}
+              className="h-8 w-8 p-0 border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground"
+              title={`Theme: ${theme}`}
+            >
+              {theme === "dark" ? <Moon className="w-3.5 h-3.5" /> : theme === "contrast" ? <Contrast className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
             </Button>
           </div>
         </div>

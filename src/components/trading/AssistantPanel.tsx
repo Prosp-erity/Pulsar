@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Bot,
+  Cpu,
   Loader2,
   Send,
   Sparkles,
@@ -12,11 +13,20 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store/trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { selectEquity, selectUnrealizedPnl } from "@/lib/store/trading-store";
 import type { StrategyId } from "@/lib/trading/types";
+
+type ModelProvider = "zai" | "openrouter" | "nvidia";
+
+const MODEL_INFO: Record<ModelProvider, { name: string; model: string; color: string }> = {
+  zai: { name: "ZAI (Default)", model: "glm-4.6", color: "#22d3ee" },
+  openrouter: { name: "OpenRouter", model: "anthropic/claude-3.5-sonnet", color: "#a78bfa" },
+  nvidia: { name: "NVIDIA", model: "nvidia/llama-3.1-nemotron-70b", color: "#76b900" },
+};
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -39,7 +49,30 @@ export function AssistantPanel() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modelProvider, setModelProvider] = useState<ModelProvider>("zai");
+  const [showModelSettings, setShowModelSettings] = useState(false);
+  const [openrouterKey, setOpenrouterKey] = useState("");
+  const [nvidiaKey, setNvidiaKey] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Load saved API keys
+  useEffect(() => {
+    setOpenrouterKey(localStorage.getItem("pulsar_openrouter_key") || "");
+    setNvidiaKey(localStorage.getItem("pulsar_nvidia_key") || "");
+    const saved = localStorage.getItem("pulsar_model_provider") as ModelProvider | null;
+    if (saved) setModelProvider(saved);
+  }, []);
+
+  // Save API keys on change
+  useEffect(() => {
+    if (openrouterKey) localStorage.setItem("pulsar_openrouter_key", openrouterKey);
+  }, [openrouterKey]);
+  useEffect(() => {
+    if (nvidiaKey) localStorage.setItem("pulsar_nvidia_key", nvidiaKey);
+  }, [nvidiaKey]);
+  useEffect(() => {
+    localStorage.setItem("pulsar_model_provider", modelProvider);
+  }, [modelProvider]);
 
   // Store access
   const store = useTradingStore();
@@ -155,6 +188,9 @@ export function AssistantPanel() {
         body: JSON.stringify({
           message: userMsg,
           appState: buildAppState(),
+          modelProvider,
+          openrouterKey: openrouterKey || undefined,
+          nvidiaKey: nvidiaKey || undefined,
         }),
       });
       const data = await res.json();
@@ -207,11 +243,75 @@ export function AssistantPanel() {
               ASSISTANT
             </span>
           </div>
-          <div className="text-[10px] text-muted-foreground">
-            Can control the entire app via chat
+          <div className="text-[10px] text-muted-foreground flex items-center gap-2">
+            <span>Can control the entire app via chat</span>
+            <button
+              onClick={() => setShowModelSettings(!showModelSettings)}
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] bg-white/5 border border-white/10 hover:bg-white/10 transition"
+              style={{ color: MODEL_INFO[modelProvider].color }}
+            >
+              <Cpu className="w-2.5 h-2.5" />
+              {MODEL_INFO[modelProvider].name}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Model provider settings */}
+      {showModelSettings && (
+        <div className="px-4 py-3 border-b border-white/5 space-y-3 bg-white/[0.02]">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Model Provider</div>
+          <div className="flex gap-2">
+            {(Object.keys(MODEL_INFO) as ModelProvider[]).map((p) => (
+              <button
+                key={p}
+                onClick={() => setModelProvider(p)}
+                className={cn(
+                  "flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border transition",
+                  modelProvider === p
+                    ? "bg-white/10 border-white/20 text-white"
+                    : "bg-white/[0.02] border-white/5 text-muted-foreground hover:bg-white/5"
+                )}
+                style={modelProvider === p ? { color: MODEL_INFO[p].color } : {}}
+              >
+                {MODEL_INFO[p].name}
+              </button>
+            ))}
+          </div>
+          <div className="text-[9px] text-white/30 font-mono">
+            Model: {MODEL_INFO[modelProvider].model}
+          </div>
+          {modelProvider === "openrouter" && (
+            <div>
+              <Label className="text-[10px] text-muted-foreground">OpenRouter API Key</Label>
+              <Input
+                type="password"
+                value={openrouterKey}
+                onChange={(e) => setOpenrouterKey(e.target.value)}
+                placeholder="sk-or-..."
+                className="mt-1 text-xs font-mono bg-white/5 border-white/10"
+              />
+            </div>
+          )}
+          {modelProvider === "nvidia" && (
+            <div>
+              <Label className="text-[10px] text-muted-foreground">NVIDIA API Key</Label>
+              <Input
+                type="password"
+                value={nvidiaKey}
+                onChange={(e) => setNvidiaKey(e.target.value)}
+                placeholder="nvapi-..."
+                className="mt-1 text-xs font-mono bg-white/5 border-white/10"
+              />
+            </div>
+          )}
+          {(modelProvider === "openrouter" || modelProvider === "nvidia") && (
+            <div className="text-[9px] text-white/30">
+              API key stored locally in your browser only.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto scroll-thin p-4 space-y-3 min-h-[300px]">

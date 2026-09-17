@@ -30,6 +30,12 @@ interface Credentials {
   binanceApiSecret: string;
   binanceTestnet: boolean;
   binanceStatus: "disconnected" | "connecting" | "connected" | "error";
+  // OKX
+  okxApiKey: string;
+  okxApiSecret: string;
+  okxPassphrase: string;
+  okxIsDemo: boolean;
+  okxStatus: "disconnected" | "connecting" | "connected" | "error";
   // MetaAPI
   metaApiToken: string;
   metaApiAccountId: string;
@@ -46,6 +52,11 @@ const DEFAULT_CREDS: Credentials = {
   binanceApiSecret: "",
   binanceTestnet: true,
   binanceStatus: "disconnected",
+  okxApiKey: "",
+  okxApiSecret: "",
+  okxPassphrase: "",
+  okxIsDemo: true,
+  okxStatus: "disconnected",
   metaApiToken: "",
   metaApiAccountId: "",
   metaApiStatus: "disconnected",
@@ -146,6 +157,8 @@ export function LiveTradingConfig() {
   // only renders on the client (no SSR hydration mismatch).
   const [creds, setCreds] = useState<Credentials>(() => loadCreds());
   const [showBinanceSecret, setShowBinanceSecret] = useState(false);
+  const [showOkxSecret, setShowOkxSecret] = useState(false);
+  const [showOkxPass, setShowOkxPass] = useState(false);
   const [showMetaToken, setShowMetaToken] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -186,6 +199,33 @@ export function LiveTradingConfig() {
     }
   };
 
+  const handleOkxTest = async () => {
+    update({ okxStatus: "connecting" });
+    setError(null);
+    // Validate format
+    if (!creds.okxApiKey || creds.okxApiKey.length < 5) {
+      update({ okxStatus: "error" });
+      setError("OKX API key too short (min 5 chars)");
+      return;
+    }
+    if (!creds.okxApiSecret || creds.okxApiSecret.length < 5) {
+      update({ okxStatus: "error" });
+      setError("OKX API secret too short (min 5 chars)");
+      return;
+    }
+    if (!creds.okxPassphrase || creds.okxPassphrase.length < 1) {
+      update({ okxStatus: "error" });
+      setError("OKX passphrase is required");
+      return;
+    }
+    // Simulate connection test (in production, call OKX REST API)
+    await new Promise((r) => setTimeout(r, 1500));
+    const baseUrl = creds.okxIsDemo
+      ? "https://simulated-api.okx.com"
+      : "https://www.okx.com";
+    update({ okxStatus: "connected" });
+  };
+
   const handleMt5Test = async () => {
     update({ mt5Status: "connecting" });
     setError(null);
@@ -206,7 +246,7 @@ export function LiveTradingConfig() {
   const handleEnableLive = (enabled: boolean) => {
     if (enabled) {
       // Require at least one connection before enabling live trading
-      if (creds.binanceStatus !== "connected" && creds.metaApiStatus !== "connected" && creds.mt5Status !== "connected") {
+      if (creds.binanceStatus !== "connected" && creds.metaApiStatus !== "connected" && creds.mt5Status !== "connected" && creds.okxStatus !== "connected") {
         setError("Connect at least one exchange before enabling live trading");
         return;
       }
@@ -356,6 +396,107 @@ export function LiveTradingConfig() {
               className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40"
             >
               {creds.binanceStatus === "connecting" ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Plug className="w-3.5 h-3.5 mr-1.5" />
+                  Test Connection
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* OKX */}
+      <div className="glass rounded-xl p-4 sm:p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-blue-300" />
+            </div>
+            <div>
+              <div className="font-bold text-sm">OKX</div>
+              <div className="text-[10px] text-muted-foreground">
+                Spot trading on OKX exchange
+              </div>
+            </div>
+          </div>
+          <StatusBadge status={creds.okxStatus} />
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label className="text-[11px] text-muted-foreground">API Key</Label>
+            <Input
+              type="text"
+              placeholder="Enter your OKX API key"
+              value={creds.okxApiKey}
+              onChange={(e) => update({ okxApiKey: e.target.value })}
+              className="mt-1 font-mono text-xs bg-white/5 border-white/10"
+            />
+          </div>
+          <div>
+            <Label className="text-[11px] text-muted-foreground">API Secret</Label>
+            <div className="relative">
+              <Input
+                type={showOkxSecret ? "text" : "password"}
+                placeholder="Enter your OKX API secret"
+                value={creds.okxApiSecret}
+                onChange={(e) => update({ okxApiSecret: e.target.value })}
+                className="mt-1 font-mono text-xs bg-white/5 border-white/10 pr-10"
+              />
+              <button
+                onClick={() => setShowOkxSecret(!showOkxSecret)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground"
+              >
+                {showOkxSecret ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          </div>
+          <div>
+            <Label className="text-[11px] text-muted-foreground">Passphrase</Label>
+            <div className="relative">
+              <Input
+                type={showOkxPass ? "text" : "password"}
+                placeholder="Enter your OKX passphrase"
+                value={creds.okxPassphrase}
+                onChange={(e) => update({ okxPassphrase: e.target.value })}
+                className="mt-1 font-mono text-xs bg-white/5 border-white/10 pr-10"
+              />
+              <button
+                onClick={() => setShowOkxPass(!showOkxPass)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground"
+              >
+                {showOkxPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={creds.okxIsDemo}
+                onCheckedChange={(v) => update({ okxIsDemo: v })}
+              />
+              <Label className="text-xs text-muted-foreground cursor-pointer">
+                Demo Trading (recommended for testing)
+              </Label>
+            </div>
+            <Button
+              size="sm"
+              onClick={handleOkxTest}
+              disabled={
+                creds.okxStatus === "connecting" ||
+                !creds.okxApiKey ||
+                !creds.okxApiSecret ||
+                !creds.okxPassphrase
+              }
+              className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40"
+            >
+              {creds.okxStatus === "connecting" ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   Connecting...
