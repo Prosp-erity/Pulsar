@@ -1,0 +1,8 @@
+{
+  "name": "pulsar-mt5-bridge",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  }
+}
