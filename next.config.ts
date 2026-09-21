@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
+  server: {
+    host: "0.0.0.0",
+    port: parseInt(process.env.PORT || "8080", 10),
+  },
 };
 
 export default nextConfig;
