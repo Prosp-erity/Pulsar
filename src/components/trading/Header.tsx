@@ -9,6 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { TopTabs } from "./Navigation";
 import { SessionPersistence } from "./SessionPersistence";
 import { useHydrated } from "@/hooks/use-hydrated";
+import { useLiveTradingStatus } from "@/hooks/use-live-trading-status";
+import { useOkxLiveAccount } from "@/hooks/use-okx-live-account";
+import { useBybitLiveAccount } from "@/hooks/use-bybit-live-account";
+import { useBingxLiveAccount } from "@/hooks/use-bingx-live-account";
+import { cn } from "@/lib/utils";
 
 type Theme = "dark" | "light" | "contrast";
 
@@ -31,14 +36,46 @@ export function Header() {
   const starting = useTradingStore((s) => s.startingBalance);
   const lastTickAt = useTradingStore((s) => s.lastTickAt);
   const positionsCount = useTradingStore((s) => s.positions.length);
+  const live = useLiveTradingStatus();
+  const okx = useOkxLiveAccount();
+  const bybit = useBybitLiveAccount();
+  const bingx = useBingxLiveAccount();
 
   const totalReturn = ((equity - starting) / starting) * 100;
 
+  // When a real broker (OKX, Bybit, or BingX) is live, show the real broker
+  // balance instead of the simulated equity. The hooks poll the broker
+  // REST API every 15s and give us a live number.
+  const isOkx = live.exchangeId === "okx";
+  const isBybit = live.exchangeId === "bybit";
+  const isBingx = live.exchangeId === "bingx";
+  const brokerAccount = isOkx ? okx : isBybit ? bybit : isBingx ? bingx : null;
+  const brokerLiveEquity =
+    hydrated && live.liveActive && brokerAccount?.balance
+      ? brokerAccount.balance.totalEqUsd
+      : null;
+  const brokerLiveUnreal =
+    hydrated && live.liveActive && brokerAccount?.balance
+      ? brokerAccount.balance.uplUsd
+      : null;
+
   // Until hydrated, show neutral placeholders that match server output.
   // This prevents hydration mismatch when localStorage loads different values.
-  const displayEquity = hydrated ? fmtUsd(equity) : "—";
-  const displayUnreal = hydrated ? fmtUsd(unreal) : "—";
-  const displayReturn = hydrated ? fmtPct(totalReturn) : "—";
+  const displayEquity = hydrated
+    ? brokerLiveEquity != null
+      ? fmtUsd(brokerLiveEquity)
+      : fmtUsd(equity)
+    : "—";
+  const displayUnreal = hydrated
+    ? brokerLiveUnreal != null
+      ? fmtUsd(brokerLiveUnreal)
+      : fmtUsd(unreal)
+    : "—";
+  const displayReturn = hydrated
+    ? brokerLiveEquity != null
+      ? fmtPct(((brokerLiveEquity - starting) / starting) * 100)
+      : fmtPct(totalReturn)
+    : "—";
   const displayOpen = hydrated ? `${positionsCount}` : "—";
   const displayTime = hydrated
     ? new Date(lastTickAt).toLocaleTimeString("en-US", { hour12: false })
@@ -81,6 +118,30 @@ export function Header() {
             <span className="hidden sm:inline">{running ? "ENGINE LIVE" : "PAUSED"}</span>
             <span className="sm:hidden">{running ? "LIVE" : "IDLE"}</span>
           </div>
+
+          {/* Live trading badge — only shown when actually live on a connected exchange */}
+          {hydrated && live.isLive && live.liveActive && (
+            <div
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold border flex-shrink-0 bg-red-500/15 border-red-500/50 text-red-300 shadow-[0_0_18px_-6px_rgba(239,68,68,0.7)] animate-pulse-dot-slow"
+              title={
+                live.primaryExchange
+                  ? `${live.primaryExchange} · ${
+                      (isOkx && okx.environment)
+                        ? (okx.environment === "demo" ? "Demo (auto-detected)" : "Live (auto-detected)")
+                        : (isBybit && bybit.environment)
+                          ? (bybit.environment === "demo" ? "Testnet (auto-detected)" : "Mainnet (auto-detected)")
+                          : (isBingx && bingx.environment)
+                            ? (bingx.environment === "demo" ? "Testnet (auto-detected)" : "Mainnet (auto-detected)")
+                            : (live.exchangeMode ?? "")
+                    }`
+                  : "No exchange connected"
+              }
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse-dot" />
+              <span className="hidden sm:inline">LIVE</span>
+              <span className="sm:hidden">LIVE</span>
+            </div>
+          )}
 
           {/* Stats (desktop) */}
           <div className="hidden lg:flex items-center gap-4 ml-auto">
@@ -176,7 +237,17 @@ export function Header() {
           <div className="flex items-center gap-3">
             <SessionPersistence />
             <div className="text-[10px] text-muted-foreground font-mono">
-              5 strategies (&gt;70% WR) · simulated market
+              {hydrated && live.isLive && live.liveActive
+                ? `5 strategies (&gt;70% WR) · LIVE · ${live.primaryExchange ?? "—"} ${
+                    (isOkx && okx.environment)
+                      ? (okx.environment === "demo" ? "(Demo)" : "(Live)")
+                      : (isBybit && bybit.environment)
+                        ? (bybit.environment === "demo" ? "(Testnet)" : "(Mainnet)")
+                        : (isBingx && bingx.environment)
+                          ? (bingx.environment === "demo" ? "(Testnet)" : "(Mainnet)")
+                          : (live.exchangeMode ?? "")
+                  }`
+                : "5 strategies (&gt;70% WR) · simulated market"}
             </div>
           </div>
         </div>

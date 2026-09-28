@@ -3,7 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Bot,
+  ChevronDown,
   Cpu,
+  Eye,
+  EyeOff,
   Loader2,
   Send,
   Sparkles,
@@ -19,13 +22,37 @@ import { useTradingStore } from "@/lib/store/trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { selectEquity, selectUnrealizedPnl } from "@/lib/store/trading-store";
 import type { StrategyId } from "@/lib/trading/types";
+import {
+  CollapsibleCard,
+} from "@/components/trading/CollapsibleCard";
 
 type ModelProvider = "zai" | "openrouter" | "nvidia";
 
-const MODEL_INFO: Record<ModelProvider, { name: string; model: string; color: string }> = {
-  zai: { name: "ZAI (Default)", model: "glm-4.6", color: "#22d3ee" },
-  openrouter: { name: "OpenRouter", model: "anthropic/claude-3.5-sonnet", color: "#a78bfa" },
-  nvidia: { name: "NVIDIA", model: "nvidia/llama-3.1-nemotron-70b", color: "#76b900" },
+const MODEL_INFO: Record<
+  ModelProvider,
+  { name: string; short: string; model: string; color: string; description: string }
+> = {
+  zai: {
+    name: "Pulsar AI (Built-in)",
+    short: "PULSAR",
+    model: "glm-4.6",
+    color: "#22d3ee",
+    description: "Default — no API key needed. Powered by Z.AI GLM-4.6.",
+  },
+  openrouter: {
+    name: "OpenRouter",
+    short: "OPENROUTER",
+    model: "anthropic/claude-3.5-sonnet",
+    color: "#a78bfa",
+    description: "Bring your own OpenRouter key. Routes to Claude, GPT, Llama, etc.",
+  },
+  nvidia: {
+    name: "NVIDIA NIM",
+    short: "NVIDIA",
+    model: "nvidia/llama-3.1-nemotron-70b",
+    color: "#76b900",
+    description: "Bring your own NVIDIA API key. Uses Nemotron-70B.",
+  },
 };
 
 interface ChatMessage {
@@ -53,9 +80,11 @@ export function AssistantPanel() {
   const [showModelSettings, setShowModelSettings] = useState(false);
   const [openrouterKey, setOpenrouterKey] = useState("");
   const [nvidiaKey, setNvidiaKey] = useState("");
+  const [showOpenrouterKey, setShowOpenrouterKey] = useState(false);
+  const [showNvidiaKey, setShowNvidiaKey] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load saved API keys
+  // Load saved API keys + provider
   useEffect(() => {
     setOpenrouterKey(localStorage.getItem("pulsar_openrouter_key") || "");
     setNvidiaKey(localStorage.getItem("pulsar_nvidia_key") || "");
@@ -141,7 +170,7 @@ export function AssistantPanel() {
           store.resetEngine();
           break;
         case "setView":
-          if (payload?.view) store.setActiveView(payload.view as string);
+          if (payload?.view) store.setActiveView(payload.view as "dashboard" | "backtest" | "strategies" | "live" | "risk" | "assistant");
           break;
         case "updateSettings":
           if (payload) store.updateSettings(payload as any);
@@ -181,6 +210,32 @@ export function AssistantPanel() {
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setLoading(true);
 
+    // Provider readiness check
+    if (modelProvider === "openrouter" && !openrouterKey.trim()) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "You've selected OpenRouter as the model provider but haven't entered an API key yet. Click the provider pill above to open the settings, paste your OpenRouter key (starts with sk-or-...), and try again. Or switch back to Pulsar AI (Built-in) to use the default model.",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+    if (modelProvider === "nvidia" && !nvidiaKey.trim()) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "You've selected NVIDIA NIM as the model provider but haven't entered an API key yet. Click the provider pill above to open the settings, paste your NVIDIA key (starts with nvapi-...), and try again. Or switch back to Pulsar AI (Built-in) to use the default model.",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/assistant", {
         method: "POST",
@@ -213,7 +268,8 @@ export function AssistantPanel() {
         ...prev,
         {
           role: "assistant",
-          content: "Sorry, I couldn't reach the server. Please try again.",
+          content:
+            "Sorry, I couldn't reach the server. Please try again. If you're using a custom provider (OpenRouter/NVIDIA), verify your API key is correct.",
         },
       ]);
     } finally {
@@ -228,86 +284,178 @@ export function AssistantPanel() {
     { label: "Go to backtest", icon: <Sparkles className="w-3 h-3" /> },
   ];
 
+  const currentModel = MODEL_INFO[modelProvider];
+
   return (
     <div className="flex flex-col h-full glass rounded-xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-white/5">
-        <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-violet-500 to-emerald-400 flex items-center justify-center">
+        <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 via-violet-500 to-emerald-400 flex items-center justify-center flex-shrink-0">
           <Bot className="w-4 h-4 text-black" strokeWidth={2.5} />
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0a0e1a]" />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <div className="font-bold text-sm flex items-center gap-1.5">
             Pulsar AI
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
               ASSISTANT
             </span>
           </div>
-          <div className="text-[10px] text-muted-foreground flex items-center gap-2">
-            <span>Can control the entire app via chat</span>
-            <button
-              onClick={() => setShowModelSettings(!showModelSettings)}
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] bg-white/5 border border-white/10 hover:bg-white/10 transition"
-              style={{ color: MODEL_INFO[modelProvider].color }}
-            >
-              <Cpu className="w-2.5 h-2.5" />
-              {MODEL_INFO[modelProvider].name}
-            </button>
+          <div className="text-[10px] text-muted-foreground">
+            Can control the entire app via chat
           </div>
         </div>
+        {/* Provider selector pill — click to expand settings */}
+        <button
+          onClick={() => setShowModelSettings(!showModelSettings)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium bg-white/5 border border-white/10 hover:bg-white/10 transition flex-shrink-0"
+          style={{ color: currentModel.color }}
+          title="Switch AI model provider"
+        >
+          <Cpu className="w-3 h-3" />
+          <span className="font-semibold">{currentModel.short}</span>
+          <ChevronDown
+            className={cn(
+              "w-3 h-3 transition-transform",
+              showModelSettings && "rotate-180",
+            )}
+          />
+        </button>
       </div>
 
-      {/* Model provider settings */}
+      {/* Model provider settings — collapsible */}
       {showModelSettings && (
         <div className="px-4 py-3 border-b border-white/5 space-y-3 bg-white/[0.02]">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Model Provider</div>
-          <div className="flex gap-2">
-            {(Object.keys(MODEL_INFO) as ModelProvider[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setModelProvider(p)}
-                className={cn(
-                  "flex-1 px-2 py-1.5 rounded-lg text-[10px] font-medium border transition",
-                  modelProvider === p
-                    ? "bg-white/10 border-white/20 text-white"
-                    : "bg-white/[0.02] border-white/5 text-muted-foreground hover:bg-white/5"
-                )}
-                style={modelProvider === p ? { color: MODEL_INFO[p].color } : {}}
-              >
-                {MODEL_INFO[p].name}
-              </button>
-            ))}
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            AI Model Provider
           </div>
-          <div className="text-[9px] text-white/30 font-mono">
-            Model: {MODEL_INFO[modelProvider].model}
+          {/* Provider tabs — 3 prominent buttons */}
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(MODEL_INFO) as ModelProvider[]).map((p) => {
+              const info = MODEL_INFO[p];
+              const active = modelProvider === p;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setModelProvider(p)}
+                  className={cn(
+                    "flex flex-col items-start gap-1 px-2.5 py-2 rounded-lg text-left border transition",
+                    active
+                      ? "bg-white/10 border-white/20"
+                      : "bg-white/[0.02] border-white/5 hover:bg-white/5",
+                  )}
+                  style={active ? { borderColor: info.color + "60" } : {}}
+                >
+                  <div
+                    className="flex items-center gap-1.5"
+                    style={{ color: info.color }}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{
+                        backgroundColor: info.color,
+                        opacity: active ? 1 : 0.4,
+                      }}
+                    />
+                    <span className="text-[10px] font-bold tracking-wider">
+                      {info.short}
+                    </span>
+                  </div>
+                  <div className="text-[9px] text-muted-foreground leading-tight">
+                    {info.name}
+                  </div>
+                </button>
+              );
+            })}
           </div>
+          {/* Description + model name */}
+          <div className="text-[10px] text-muted-foreground leading-relaxed">
+            {currentModel.description}
+          </div>
+          <div className="text-[9px] text-white/40 font-mono">
+            Model: <span style={{ color: currentModel.color }}>{currentModel.model}</span>
+          </div>
+
+          {/* API key inputs — only show for providers that need them */}
           {modelProvider === "openrouter" && (
             <div>
-              <Label className="text-[10px] text-muted-foreground">OpenRouter API Key</Label>
-              <Input
-                type="password"
-                value={openrouterKey}
-                onChange={(e) => setOpenrouterKey(e.target.value)}
-                placeholder="sk-or-..."
-                className="mt-1 text-xs font-mono bg-white/5 border-white/10"
-              />
+              <Label className="text-[10px] text-muted-foreground">
+                OpenRouter API Key
+              </Label>
+              <div className="relative mt-1">
+                <Input
+                  type={showOpenrouterKey ? "text" : "password"}
+                  value={openrouterKey}
+                  onChange={(e) => setOpenrouterKey(e.target.value)}
+                  placeholder="sk-or-v1-..."
+                  className="font-mono text-xs bg-white/5 border-white/10 pr-9"
+                />
+                <button
+                  onClick={() => setShowOpenrouterKey(!showOpenrouterKey)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showOpenrouterKey ? (
+                    <EyeOff className="w-3.5 h-3.5" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+              <div className="text-[9px] text-muted-foreground mt-1.5">
+                Get a key at{" "}
+                <a
+                  href="https://openrouter.ai/keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-300 hover:underline"
+                >
+                  openrouter.ai/keys
+                </a>{" "}
+                · stored locally in your browser only
+              </div>
             </div>
           )}
           {modelProvider === "nvidia" && (
             <div>
-              <Label className="text-[10px] text-muted-foreground">NVIDIA API Key</Label>
-              <Input
-                type="password"
-                value={nvidiaKey}
-                onChange={(e) => setNvidiaKey(e.target.value)}
-                placeholder="nvapi-..."
-                className="mt-1 text-xs font-mono bg-white/5 border-white/10"
-              />
+              <Label className="text-[10px] text-muted-foreground">
+                NVIDIA API Key
+              </Label>
+              <div className="relative mt-1">
+                <Input
+                  type={showNvidiaKey ? "text" : "password"}
+                  value={nvidiaKey}
+                  onChange={(e) => setNvidiaKey(e.target.value)}
+                  placeholder="nvapi-..."
+                  className="font-mono text-xs bg-white/5 border-white/10 pr-9"
+                />
+                <button
+                  onClick={() => setShowNvidiaKey(!showNvidiaKey)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showNvidiaKey ? (
+                    <EyeOff className="w-3.5 h-3.5" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+              <div className="text-[9px] text-muted-foreground mt-1.5">
+                Get a key at{" "}
+                <a
+                  href="https://build.nvidia.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-300 hover:underline"
+                >
+                  build.nvidia.com
+                </a>{" "}
+                · stored locally in your browser only
+              </div>
             </div>
           )}
-          {(modelProvider === "openrouter" || modelProvider === "nvidia") && (
-            <div className="text-[9px] text-white/30">
-              API key stored locally in your browser only.
+          {modelProvider === "zai" && (
+            <div className="text-[10px] text-muted-foreground bg-cyan-500/5 border border-cyan-500/10 rounded-lg p-2.5">
+              ✓ No API key required. Pulsar AI uses the built-in GLM-4.6 model — just type and send.
             </div>
           )}
         </div>
@@ -357,8 +505,11 @@ export function AssistantPanel() {
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center flex-shrink-0">
               <Bot className="w-3.5 h-3.5 text-black" />
             </div>
-            <div className="bg-white/[0.04] rounded-2xl rounded-tl-sm px-4 py-3">
+            <div className="bg-white/[0.04] rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin text-cyan-300" />
+              <span className="text-[11px] text-muted-foreground">
+                {currentModel.short} is thinking…
+              </span>
             </div>
           </div>
         )}
@@ -392,7 +543,7 @@ export function AssistantPanel() {
                 sendMessage();
               }
             }}
-            placeholder="Ask me to control the app..."
+            placeholder={`Ask ${currentModel.short} to control the app…`}
             disabled={loading}
             className="bg-white/[0.03] border-white/10 text-sm"
           />

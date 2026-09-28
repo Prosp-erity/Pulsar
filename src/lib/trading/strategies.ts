@@ -29,8 +29,8 @@ export interface StrategyDef {
   bestFor: string;
   color: string;
   type: StrategyType;
-  expectedTradesPerDay: string; // e.g. "~14/day" — computed from 90-day backtest
-  avgHoldTime: string; // e.g. "~1.5h" — computed from backtest avg bars held × candle size
+  expectedTradesPerDay: string; // e.g. "≈14/day" — computed from 90-day backtest
+  avgHoldTime: string; // e.g. "≈1.5h" — computed from backtest avg bars held × candle size
   backtest: StrategyStats["backtest"];
   evaluate: (candles: Candle[], recentCloses: number[]) => Omit<Signal, "ts"> | null;
 }
@@ -50,8 +50,8 @@ const connorsRSI: StrategyDef = {
   bestFor: "BTC, ETH, SOL — all pairs with institutional flow",
   color: "#22d3ee",
   type: "Scalper",
-  expectedTradesPerDay: "~6/day",
-  avgHoldTime: "~15min",
+  expectedTradesPerDay: "≈6/day",
+  avgHoldTime: "≈15min",
   backtest: {
     winRate: 62.0,
     profitFactor: 1.3,
@@ -115,8 +115,8 @@ const vwapFadePro: StrategyDef = {
   bestFor: "All pairs — trend following",
   color: "#34d399",
   type: "Scalper",
-  expectedTradesPerDay: "~10/day",
-  avgHoldTime: "~20min",
+  expectedTradesPerDay: "≈10/day",
+  avgHoldTime: "≈20min",
   backtest: {
     winRate: 62.0,
     profitFactor: 1.2,
@@ -182,8 +182,8 @@ const liquiditySweep: StrategyDef = {
   bestFor: "BTC, ETH, SOL — pairs with clean candle structure",
   color: "#a78bfa",
   type: "Scalper",
-  expectedTradesPerDay: "~4/day",
-  avgHoldTime: "~20min",
+  expectedTradesPerDay: "≈4/day",
+  avgHoldTime: "≈20min",
   backtest: {
     winRate: 65.0,
     profitFactor: 1.3,
@@ -278,8 +278,8 @@ const sessionORB: StrategyDef = {
   bestFor: "BTC, ETH, SOL — trending pairs with sustained momentum",
   color: "#fbbf24",
   type: "Scalper",
-  expectedTradesPerDay: "~6/day",
-  avgHoldTime: "~20min",
+  expectedTradesPerDay: "≈6/day",
+  avgHoldTime: "≈20min",
   backtest: {
     winRate: 62.0,
     profitFactor: 1.3,
@@ -343,8 +343,8 @@ const bbSqueezeMTF: StrategyDef = {
   bestFor: "BTC, ETH, SOL — pairs that respect EMA support levels",
   color: "#f472b6",
   type: "Scalper",
-  expectedTradesPerDay: "~4/day",
-  avgHoldTime: "~25min",
+  expectedTradesPerDay: "≈4/day",
+  avgHoldTime: "≈25min",
   backtest: {
     winRate: 68.0,
     profitFactor: 1.4,

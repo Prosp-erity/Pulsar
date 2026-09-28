@@ -44,42 +44,52 @@
 }
 
 :root {
-  /* Futuristic dark theme — applied on <html class="dark"> */
+  /* Light theme (default — applied when <html> has no .dark class) */
   --radius: 0.75rem;
-  --background: oklch(0.13 0.02 250);
-  --foreground: oklch(0.97 0.01 220);
-  --card: oklch(0.18 0.025 250);
-  --card-foreground: oklch(0.97 0.01 220);
-  --popover: oklch(0.18 0.025 250);
-  --popover-foreground: oklch(0.97 0.01 220);
-  --primary: oklch(0.78 0.18 195);
-  --primary-foreground: oklch(0.12 0.02 250);
-  --secondary: oklch(0.24 0.03 250);
-  --secondary-foreground: oklch(0.97 0.01 220);
-  --muted: oklch(0.22 0.025 250);
-  --muted-foreground: oklch(0.7 0.03 220);
-  --accent: oklch(0.7 0.2 195);
-  --accent-foreground: oklch(0.12 0.02 250);
-  --destructive: oklch(0.65 0.22 22);
-  --border: oklch(0.3 0.04 250 / 35%);
-  --input: oklch(0.28 0.04 250 / 50%);
-  --ring: oklch(0.78 0.18 195);
-  --chart-1: oklch(0.78 0.18 195);
-  --chart-2: oklch(0.75 0.18 160);
-  --chart-3: oklch(0.72 0.2 290);
-  --chart-4: oklch(0.78 0.18 80);
-  --chart-5: oklch(0.72 0.2 340);
-  --sidebar: oklch(0.16 0.02 250);
-  --sidebar-foreground: oklch(0.97 0.01 220);
-  --sidebar-primary: oklch(0.78 0.18 195);
-  --sidebar-primary-foreground: oklch(0.12 0.02 250);
-  --sidebar-accent: oklch(0.24 0.03 250);
-  --sidebar-accent-foreground: oklch(0.97 0.01 220);
-  --sidebar-border: oklch(0.3 0.04 250 / 35%);
-  --sidebar-ring: oklch(0.78 0.18 195);
+  --background: oklch(0.98 0.005 220);
+  --foreground: oklch(0.18 0.02 250);
+  --card: oklch(1 0.005 220);
+  --card-foreground: oklch(0.18 0.02 250);
+  --popover: oklch(1 0.005 220);
+  --popover-foreground: oklch(0.18 0.02 250);
+  --primary: oklch(0.55 0.2 200);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.01 220);
+  --secondary-foreground: oklch(0.2 0.02 250);
+  --muted: oklch(0.95 0.01 220);
+  --muted-foreground: oklch(0.45 0.03 220);
+  --accent: oklch(0.55 0.2 200);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.58 0.24 25);
+  --border: oklch(0.85 0.01 220);
+  --input: oklch(0.9 0.01 220);
+  --ring: oklch(0.55 0.2 200);
+  --chart-1: oklch(0.55 0.2 200);
+  --chart-2: oklch(0.55 0.2 160);
+  --chart-3: oklch(0.55 0.22 290);
+  --chart-4: oklch(0.6 0.2 75);
+  --chart-5: oklch(0.55 0.22 340);
+  --sidebar: oklch(0.97 0.005 220);
+  --sidebar-foreground: oklch(0.18 0.02 250);
+  --sidebar-primary: oklch(0.55 0.2 200);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.92 0.01 220);
+  --sidebar-accent-foreground: oklch(0.18 0.02 250);
+  --sidebar-border: oklch(0.85 0.01 220);
+  --sidebar-ring: oklch(0.55 0.2 200);
+  /* Glass overrides for light mode */
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-strong-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.75) 100%);
+  --glass-strong-border: rgba(0, 0, 0, 0.12);
+  --body-bg: #f5f7fa;
+  --body-bg-image: radial-gradient(ellipse 80% 50% at 20% -10%, rgba(34, 211, 238, 0.12), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 10%, rgba(167, 139, 250, 0.12), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 110%, rgba(52, 211, 153, 0.1), transparent 60%);
 }
 
 .dark {
+  /* Futuristic dark theme — applied on <html class="dark"> */
   --background: oklch(0.13 0.02 250);
   --foreground: oklch(0.97 0.01 220);
   --card: oklch(0.18 0.025 250);
@@ -111,6 +121,14 @@
   --sidebar-accent-foreground: oklch(0.97 0.01 220);
   --sidebar-border: oklch(0.3 0.04 250 / 35%);
   --sidebar-ring: oklch(0.78 0.18 195);
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.015) 100%);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-strong-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --glass-strong-border: rgba(255, 255, 255, 0.08);
+  --body-bg: #060810;
+  --body-bg-image: radial-gradient(ellipse 80% 50% at 20% -10%, rgba(34, 211, 238, 0.1), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 10%, rgba(167, 139, 250, 0.1), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 110%, rgba(52, 211, 153, 0.08), transparent 60%);
 }
 
 /* High-contrast theme — for low-light readability */
@@ -156,36 +174,43 @@
   html {
     color-scheme: dark;
   }
+  html:not(.dark):not(.high-contrast) {
+    color-scheme: light;
+  }
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(34, 211, 238, 0.10), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 90% 10%, rgba(167, 139, 250, 0.10), transparent 60%),
-      radial-gradient(ellipse 50% 40% at 50% 110%, rgba(52, 211, 153, 0.08), transparent 60%);
+    background-color: var(--body-bg);
+    background-image: var(--body-bg-image);
     background-attachment: fixed;
     min-height: 100vh;
+  }
+  /* In light mode, replace invisible "white/X" borders with dark-tinted
+     ones so panels/dividers remain visible. */
+  html:not(.dark):not(.high-contrast) .border-white\/5,
+  html:not(.dark):not(.high-contrast) .border-white\/10,
+  html:not(.dark):not(.high-contrast) .border-white\/20 {
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+  html:not(.dark):not(.high-contrast) .bg-white\/5 {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  html:not(.dark):not(.high-contrast) .hover\:bg-white\/5:hover,
+  html:not(.dark):not(.high-contrast) .hover\:bg-white\/10:hover {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 }
 
 /* Custom utility classes */
 @layer utilities {
   .glass {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.04) 0%,
-      rgba(255, 255, 255, 0.015) 100%
-    );
+    background: var(--glass-bg);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--glass-border);
   }
   .glass-strong {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(255, 255, 255, 0.02) 100%
-    );
+    background: var(--glass-strong-bg);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-strong-border);
   }
   .neon-cyan {
     box-shadow:
@@ -205,12 +230,6 @@
   .text-glow {
     text-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
   }
-  .grid-bg {
-    background-image:
-      linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
   .scroll-thin::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -219,18 +238,53 @@
     background: transparent;
   }
   .scroll-thin::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(128, 128, 128, 0.25);
     border-radius: 3px;
   }
   .scroll-thin::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(128, 128, 128, 0.45);
   }
   .animate-pulse-dot {
     animation: pulseDot 1.6s ease-in-out infinite;
   }
+  .animate-pulse-dot-slow {
+    animation: pulseDot 3.2s ease-in-out infinite;
+  }
+  .animate-ping-slow {
+    animation: pingSlow 2.4s ease-out infinite;
+  }
+  .animate-ping-slower {
+    animation: pingSlow 3.6s ease-out infinite;
+  }
+  .animate-float {
+    animation: float 3.2s ease-in-out infinite;
+  }
+  .animate-collapse {
+    animation: collapse 0.22s ease-out forwards;
+  }
+  .animate-expand {
+    animation: expand 0.24s ease-out forwards;
+  }
   @keyframes pulseDot {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  @keyframes pingSlow {
+    0% { opacity: 0.6; transform: scale(0.95); }
+    70% { opacity: 0; transform: scale(1.25); }
+    100% { opacity: 0; transform: scale(1.25); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes collapse {
+    from { opacity: 1; max-height: 1000px; }
+    to { opacity: 0; max-height: 0; }
+  }
+  @keyframes expand {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 1500px; }
   }
   .animate-flash-green {
     animation: flashGreen 0.6s ease-out;

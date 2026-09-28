@@ -9,7 +9,7 @@ import {
   Tooltip,
   YAxis,
 } from "recharts";
-import { Power, Settings2 } from "lucide-react";
+import { Settings2, Layers } from "lucide-react";
 import { useTradingStore } from "@/lib/store/trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { fmtPrice, fmtPct, fmtUsd } from "@/lib/trading/engine";
@@ -28,11 +28,77 @@ const EMPTY_SERIES: { time: number; close: number }[] = [];
 
 export function PairGrid() {
   const pairs = useTradingStore((s) => s.pairs);
+  const togglePair = useTradingStore((s) => s.togglePair);
+  const enabledCount = pairs.filter((p) => p.enabled).length;
+  const totalCount = pairs.length;
+  const allOn = enabledCount === totalCount;
+
+  // Bulk toggle: if any are off, turn all on. If all on, turn all off.
+  const toggleAll = () => {
+    const target = !allOn;
+    for (const p of pairs) {
+      if (p.enabled !== target) togglePair(p.symbol);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-      {pairs.map((p) => (
-        <PairCard key={p.symbol} pair={p} />
-      ))}
+    <div>
+      {/* Pair selection header bar — visible above the grid so the user
+          immediately sees that they can tap to enable/disable individual
+          pairs. Includes pair chips for quick toggle + a Select All/None
+          bulk button + the active count. */}
+      <div className="flex items-center justify-between gap-3 mb-3 px-4 py-2.5 glass rounded-xl border border-white/5 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Layers className="w-4 h-4 text-cyan-300" />
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+              Trading Pairs · tap to toggle
+            </div>
+            <div className="text-sm font-semibold">
+              {enabledCount} of {totalCount} active
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Pair chip row — tap any chip to toggle that pair */}
+          <div className="hidden md:flex items-center gap-1.5 mr-2">
+            {pairs.map((p) => (
+              <button
+                key={p.symbol}
+                onClick={() => togglePair(p.symbol)}
+                className={cn(
+                  "text-[10px] font-mono px-2 py-0.5 rounded border transition",
+                  p.enabled
+                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+                    : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10",
+                )}
+                title={p.enabled ? `Tap to pause ${p.symbol}` : `Tap to enable ${p.symbol}`}
+              >
+                {p.symbol.split("/")[0]}
+              </button>
+            ))}
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={toggleAll}
+            className={cn(
+              "h-7 text-[10px] uppercase tracking-wider",
+              allOn
+                ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-300"
+                : "border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300",
+            )}
+          >
+            {allOn ? "Turn All Off" : "Enable All"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {pairs.map((p) => (
+          <PairCard key={p.symbol} pair={p} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -84,16 +150,42 @@ function PairCard({ pair }: { pair: PairConfig }) {
   return (
     <div
       className={cn(
-        "glass rounded-xl p-4 transition-all",
-        pair.enabled ? "neon-cyan/30" : "opacity-60",
+        "glass rounded-xl p-4 transition-all cursor-pointer relative",
+        pair.enabled
+          ? "ring-1 ring-emerald-500/30 hover:ring-emerald-500/50"
+          : "opacity-60 hover:opacity-80 ring-1 ring-white/5",
       )}
-      style={{
-        boxShadow: pair.enabled
-          ? "0 0 0 1px rgba(34, 211, 238, 0.15), 0 0 24px -8px rgba(34, 211, 238, 0.25)"
-          : "none",
-      }}
+      onClick={() => togglePair(pair.symbol)}
+      title={pair.enabled ? `Tap to pause ${pair.symbol}` : `Tap to enable ${pair.symbol}`}
     >
-      <div className="flex items-start justify-between mb-3">
+      {/* ENABLED / PAUSED badge top-right corner */}
+      <div className="absolute top-3 right-3">
+        <span
+          className={cn(
+            "text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded border",
+            pair.enabled
+              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+              : "bg-white/5 text-muted-foreground border-white/10",
+          )}
+        >
+          {pair.enabled ? "● TRADING" : "○ PAUSED"}
+        </span>
+      </div>
+
+      {/* Settings gear button — opens per-pair strategy config dialog.
+          Stops propagation so it doesn't trigger the card's toggle. */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpenCfg(true);
+        }}
+        className="absolute top-3 right-20 text-muted-foreground hover:text-cyan-300 transition opacity-60 hover:opacity-100"
+        title="Configure strategies for this pair"
+      >
+        <Settings2 className="w-3.5 h-3.5" />
+      </button>
+
+      <div className="flex items-start justify-between mb-3 pr-24">
         <div>
           <div className="flex items-center gap-2">
             <span
@@ -117,27 +209,6 @@ function PairCard({ pair }: { pair: PairConfig }) {
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-7 w-7 hover:bg-white/5"
-              onClick={() => setOpenCfg(true)}
-            >
-              <Settings2 className="w-3.5 h-3.5 text-muted-foreground" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className={cn(
-                "h-7 w-7 hover:bg-white/5",
-                pair.enabled ? "text-emerald-300" : "text-muted-foreground",
-              )}
-              onClick={() => togglePair(pair.symbol)}
-            >
-              <Power className="w-3.5 h-3.5" />
-            </Button>
-          </div>
           {positions.length > 0 && (
             <div
               className={cn(
@@ -155,7 +226,7 @@ function PairCard({ pair }: { pair: PairConfig }) {
       </div>
 
       {/* Chart */}
-      <div className="h-[100px] -mx-2">
+      <div className="h-[100px] -mx-2" onClick={(e) => e.stopPropagation()}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
             <defs>
@@ -230,7 +301,7 @@ function PairCard({ pair }: { pair: PairConfig }) {
 
       {/* Positions */}
       {positions.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
+        <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5" onClick={(e) => e.stopPropagation()}>
           {positions.slice(0, 3).map((p) => {
             const dir = p.side === "LONG" ? 1 : -1;
             const pnl = (price - p.entryPrice) * p.size * dir;

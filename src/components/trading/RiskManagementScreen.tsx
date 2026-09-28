@@ -11,6 +11,7 @@ import {
   TrendingDown,
   Wallet,
   DollarSign,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,9 @@ import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store/trading-store";
 import { fmtUsd } from "@/lib/trading/engine";
 import { useHydrated } from "@/hooks/use-hydrated";
+import {
+  CollapsibleCard,
+} from "@/components/trading/CollapsibleCard";
 
 export function RiskManagementScreen() {
   const hydrated = useHydrated();
@@ -141,81 +145,87 @@ export function RiskManagementScreen() {
       </div>
 
       {/* Position Limits */}
-      <div className="glass rounded-xl p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <Layers className="w-4 h-4 text-violet-300" />
-          <h3 className="font-bold text-sm">Position Limits</h3>
+      <CollapsibleCard
+        icon={
+          <div className="w-8 h-8 rounded-lg bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
+            <Layers className="w-4 h-4 text-violet-300" />
+          </div>
+        }
+        title="Position Limits"
+        subtitle="Max simultaneous open positions and leverage"
+        defaultOpen={false}
+      >
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-xs text-muted-foreground">
+              Max positions per pair
+            </Label>
+            <span className="font-mono text-sm font-bold tabular-nums">
+              {settings.maxPositionsPerPair}
+            </span>
+          </div>
+          <Slider
+            value={[settings.maxPositionsPerPair]}
+            min={1}
+            max={5}
+            step={1}
+            onValueChange={(v) => updateSettings({ maxPositionsPerPair: v[0] })}
+          />
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-xs text-muted-foreground">
-                Max positions per pair
-              </Label>
-              <span className="font-mono text-sm font-bold tabular-nums">
-                {settings.maxPositionsPerPair}
-              </span>
-            </div>
-            <Slider
-              value={[settings.maxPositionsPerPair]}
-              min={1}
-              max={5}
-              step={1}
-              onValueChange={(v) => updateSettings({ maxPositionsPerPair: v[0] })}
-            />
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-xs text-muted-foreground">
+              Max total open positions
+            </Label>
+            <span className="font-mono text-sm font-bold tabular-nums">
+              {settings.maxTotalPositions}
+            </span>
           </div>
+          <Slider
+            value={[settings.maxTotalPositions]}
+            min={2}
+            max={30}
+            step={1}
+            onValueChange={(v) => updateSettings({ maxTotalPositions: v[0] })}
+          />
+        </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-xs text-muted-foreground">
-                Max total open positions
-              </Label>
-              <span className="font-mono text-sm font-bold tabular-nums">
-                {settings.maxTotalPositions}
-              </span>
-            </div>
-            <Slider
-              value={[settings.maxTotalPositions]}
-              min={2}
-              max={30}
-              step={1}
-              onValueChange={(v) => updateSettings({ maxTotalPositions: v[0] })}
-            />
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-xs text-muted-foreground">
+              Leverage multiplier
+            </Label>
+            <span className="font-mono text-sm font-bold tabular-nums text-amber-300">
+              {leverage}×
+            </span>
           </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-xs text-muted-foreground">
-                Leverage multiplier
-              </Label>
-              <span className="font-mono text-sm font-bold tabular-nums text-amber-300">
-                {leverage}×
-              </span>
-            </div>
-            <Slider
-              value={[leverage]}
-              min={1}
-              max={20}
-              step={1}
-              onValueChange={(v) => updateSettings({ leverage: v[0] })}
-            />
-            <div className="flex justify-between text-[10px] text-muted-foreground mt-1 font-mono">
-              <span>1× (no leverage)</span>
-              <span>5× (moderate)</span>
-              <span>20× (high risk)</span>
-            </div>
+          <Slider
+            value={[leverage]}
+            min={1}
+            max={20}
+            step={1}
+            onValueChange={(v) => updateSettings({ leverage: v[0] })}
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1 font-mono">
+            <span>1× (no leverage)</span>
+            <span>5× (moderate)</span>
+            <span>20× (high risk)</span>
           </div>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Stop Loss / Take Profit */}
-      <div className="glass rounded-xl p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingDown className="w-4 h-4 text-red-300" />
-          <h3 className="font-bold text-sm">Stop Loss & Take Profit</h3>
-        </div>
-
+      <CollapsibleCard
+        icon={
+          <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center">
+            <TrendingDown className="w-4 h-4 text-red-300" />
+          </div>
+        }
+        title="Stop Loss & Take Profit"
+        subtitle="Per-trade risk:reward configuration"
+        defaultOpen={false}
+      >
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/[0.03] rounded-lg p-3">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -257,7 +267,7 @@ export function RiskManagementScreen() {
           </div>
         </div>
 
-        <div className="mt-3 bg-white/[0.03] rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-white/[0.03] rounded-lg p-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-3.5 h-3.5 text-emerald-300" />
             <span className="text-xs text-muted-foreground">
@@ -270,22 +280,27 @@ export function RiskManagementScreen() {
         </div>
 
         {/* Risk:Reward ratio display */}
-        <div className="mt-3 bg-white/[0.03] rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-white/[0.03] rounded-lg p-3 flex items-center justify-between">
           <span className="text-xs text-muted-foreground">Risk : Reward ratio</span>
           <span className="font-mono text-sm font-bold tabular-nums text-cyan-300">
             1 : {(settings.defaultTargetPct / settings.defaultStopPct).toFixed(2)}
           </span>
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Daily Loss Limit */}
-      <div className="glass rounded-xl p-4 sm:p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <AlertTriangle className="w-4 h-4 text-amber-300" />
-          <h3 className="font-bold text-sm">Daily Loss Limit</h3>
-        </div>
-
-        <div className="bg-white/[0.03] rounded-lg p-3 flex items-center justify-between mb-3">
+      <CollapsibleCard
+        icon={
+          <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+            <AlertTriangle className="w-4 h-4 text-amber-300" />
+          </div>
+        }
+        title="Daily Loss Limit"
+        subtitle="Auto-halt engine when cumulative daily loss is exceeded"
+        accent="amber"
+        defaultOpen={false}
+      >
+        <div className="bg-white/[0.03] rounded-lg p-3 flex items-center justify-between mb-1">
           <div>
             <div className="text-xs text-muted-foreground">Max daily loss (est.)</div>
             <div className="font-mono text-lg font-bold tabular-nums text-red-300 mt-0.5">
@@ -309,7 +324,7 @@ export function RiskManagementScreen() {
           account from catastrophic drawdowns during unfavorable market
           conditions.
         </div>
-      </div>
+      </CollapsibleCard>
 
       {/* Summary */}
       <div className="glass rounded-xl p-4 border border-cyan-500/20 bg-cyan-500/5">

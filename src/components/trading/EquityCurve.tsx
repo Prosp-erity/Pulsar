@@ -33,8 +33,8 @@ export function EquityCurve() {
   const up = delta >= 0;
 
   return (
-    <div className="glass rounded-xl p-4 h-full">
-      <div className="flex items-start justify-between mb-3">
+    <div className="glass rounded-xl p-4 h-full flex flex-col">
+      <div className="flex items-start justify-between mb-3 flex-shrink-0">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
             Equity Curve
@@ -61,7 +61,9 @@ export function EquityCurve() {
           </div>
         </div>
       </div>
-      <div className="h-[180px] -mx-2">
+      {/* Fixed 240px chart height — avoids the "empty void" UX issue where
+          a stretched chart container with sparse data looks broken. */}
+      <div className="h-[240px] -mx-2 flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <defs>
@@ -72,7 +74,7 @@ export function EquityCurve() {
             </defs>
             <XAxis dataKey="i" hide />
             <YAxis
-              domain={[min * 0.995, max * 1.005]}
+              domain={["dataMin", "dataMax"]}
               hide
             />
             <Tooltip
@@ -94,6 +96,7 @@ export function EquityCurve() {
               strokeWidth={2}
               fill="url(#eqGrad)"
               isAnimationActive={false}
+              baseValue="dataMin"
             />
           </AreaChart>
         </ResponsiveContainer>

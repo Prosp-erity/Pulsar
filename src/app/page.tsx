@@ -19,6 +19,9 @@ import { ClientOnly } from "@/components/trading/ClientOnly";
 import { LiveTradingConfig } from "@/components/trading/LiveTradingConfig";
 import { RiskManagementScreen } from "@/components/trading/RiskManagementScreen";
 import { AssistantPanel } from "@/components/trading/AssistantPanel";
+import { LiveTradingBanner } from "@/components/trading/LiveTradingBanner";
+import { AuthSplash } from "@/components/trading/AuthSplash";
+import { LiveOrderBridgeStatus } from "@/components/trading/LiveOrderBridgeStatus";
 import { useTradingStore } from "@/lib/store/trading-store";
 import Link from "next/link";
 import { ArrowLeft, Home as HomeIcon } from "lucide-react";
@@ -42,10 +45,11 @@ export default function Home() {
   const activeView = useTradingStore((s) => s.activeView);
   const clearHistory = useTradingStore((s) => s.clearHistory);
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated — give the splash screen
+  // enough air-time (~500ms) to actually be seen by the user.
   useEffect(() => {
     if (!authed) {
-      const t = setTimeout(() => router.push("/login"), 100);
+      const t = setTimeout(() => router.push("/login"), 500);
       return () => clearTimeout(t);
     }
   }, [authed, router]);
@@ -83,28 +87,21 @@ export default function Home() {
   }, [authed, backtestStatus, runBacktests]);
 
   if (!authed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#060810] text-white">
-        <div className="text-sm text-white/30">Checking authentication...</div>
-      </div>
-    );
+    return <AuthSplash message="Authenticating" />;
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      <ClientOnly fallback={null}>
+        <LiveTradingBanner />
+      </ClientOnly>
       <ClientOnly fallback={<div className="h-10 border-y border-white/5 bg-black/20" />}>
         <PriceTicker />
       </ClientOnly>
 
       <main className="flex-1 p-3 sm:p-4 md:p-6 pb-20 md:pb-6 max-w-[1800px] w-full mx-auto">
-        <ClientOnly
-          fallback={
-            <div className="flex items-center justify-center py-20 text-muted-foreground text-sm">
-              Loading trading engine…
-            </div>
-          }
-        >
+        <ClientOnly fallback={<AuthSplash message="Loading trading engine" />}>
           {activeView === "dashboard" && <DashboardView />}
           {activeView === "backtest" && <BacktestScreen />}
           {activeView === "strategies" && <StrategiesScreen />}
@@ -153,9 +150,12 @@ function DashboardView() {
       {/* KPI Row */}
       <KpiCards />
 
+      {/* Live Order Bridge status — only shown when live on a supported exchange */}
+      <LiveOrderBridgeStatus />
+
       {/* Top section: Equity curve + Strategy panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:items-stretch">
+        <div className="lg:col-span-2 min-h-[260px]">
           <EquityCurve />
         </div>
         <div className="lg:col-span-1">
