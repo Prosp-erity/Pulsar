@@ -30,3 +30,12 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Engine state persistence for server-side trading engine
+model EngineState {
+  id        Int      @id @default(1)
+  data      String   // JSON serialized engine state
+  updatedAt DateTime @default(now())
+  
+  @@map("EngineState")
+}

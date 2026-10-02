@@ -1,6 +1,6 @@
 "use client";
 
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { fmtPrice, fmtPct } from "@/lib/trading/engine";
 
 export function PriceTicker() {

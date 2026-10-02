@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, FlaskConical, TrendingUp } from "lucide-react";
 import { STRATEGIES } from "@/lib/trading/strategies";
-import { selectStrategyLiveStats, useTradingStore } from "@/lib/store/trading-store";
+import { selectStrategyLiveStats, useTradingStore } from "@/lib/store/server-trading-store";
 import type { StrategyId } from "@/lib/trading/types";
 import { fmtUsd, fmtPct } from "@/lib/trading/engine";
 import { cn } from "@/lib/utils";

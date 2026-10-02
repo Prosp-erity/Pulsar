@@ -22,7 +22,7 @@ import { AssistantPanel } from "@/components/trading/AssistantPanel";
 import { LiveTradingBanner } from "@/components/trading/LiveTradingBanner";
 import { AuthSplash } from "@/components/trading/AuthSplash";
 import { LiveOrderBridgeStatus } from "@/components/trading/LiveOrderBridgeStatus";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore, useEngineStateSync } from "@/lib/store/server-trading-store";
 import Link from "next/link";
 import { ArrowLeft, Home as HomeIcon } from "lucide-react";
 
@@ -54,28 +54,8 @@ export default function Home() {
     }
   }, [authed, router]);
 
-  // One-time clean reset on mount if the persisted session is in deep
-  // drawdown (>50% loss).
-  useEffect(() => {
-    if (!authed) return;
-    const raw = typeof window !== "undefined" ? window.localStorage.getItem("pulsar.session.v1") : null;
-    if (raw) {
-      try {
-        const p = JSON.parse(raw);
-        const lossPct = p.realizedPnl / p.startingBalance;
-        if (lossPct < -0.5 && p.trades?.length > 50) {
-          window.localStorage.removeItem("pulsar.session.v1");
-        }
-      } catch {}
-    }
-  }, [authed]);
-
-  // Auto-start the engine on first load so the dashboard is alive.
-  useEffect(() => {
-    if (!authed) return;
-    const t = setTimeout(() => startEngine(), 300);
-    return () => clearTimeout(t);
-  }, [authed]);
+  // Sync with server engine state
+  useEngineStateSync();
 
   // Auto-run backtests on first load
   useEffect(() => {

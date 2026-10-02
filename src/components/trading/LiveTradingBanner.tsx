@@ -5,7 +5,7 @@ import { useLiveTradingStatus } from "@/hooks/use-live-trading-status";
 import { useOkxLiveAccount } from "@/hooks/use-okx-live-account";
 import { useBybitLiveAccount } from "@/hooks/use-bybit-live-account";
 import { useBingxLiveAccount } from "@/hooks/use-bingx-live-account";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { cn } from "@/lib/utils";
 
 /**

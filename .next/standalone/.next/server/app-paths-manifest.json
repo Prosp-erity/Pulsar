@@ -1,0 +1,19 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/assistant/route": "app/api/assistant/route.js",
+  "/api/bingx/order/route": "app/api/bingx/order/route.js",
+  "/api/bingx/route": "app/api/bingx/route.js",
+  "/api/bybit/order/route": "app/api/bybit/order/route.js",
+  "/api/bybit/route": "app/api/bybit/route.js",
+  "/api/download-source/route": "app/api/download-source/route.js",
+  "/api/engine/control/route": "app/api/engine/control/route.js",
+  "/api/engine/state/route": "app/api/engine/state/route.js",
+  "/api/engine/status/route": "app/api/engine/status/route.js",
+  "/api/okx/order/route": "app/api/okx/order/route.js",
+  "/api/okx/route": "app/api/okx/route.js",
+  "/api/route": "app/api/route.js",
+  "/landing/page": "app/landing/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}

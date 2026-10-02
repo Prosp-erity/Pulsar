@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { Settings2, Layers } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { fmtPrice, fmtPct, fmtUsd } from "@/lib/trading/engine";
 import type { PairConfig, StrategyId } from "@/lib/trading/types";

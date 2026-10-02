@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
-import { selectEquity, selectUnrealizedPnl } from "@/lib/store/trading-store";
+import { selectEquity, selectUnrealizedPnl } from "@/lib/store/server-trading-store";
 import type { StrategyId } from "@/lib/trading/types";
 import {
   CollapsibleCard,

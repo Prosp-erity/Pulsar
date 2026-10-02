@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Activity, Contrast, Moon, Pause, Play, RotateCcw, Sun, Zap } from "lucide-react";
-import { useTradingStore, selectEquity, selectUnrealizedPnl } from "@/lib/store/trading-store";
+import { useTradingStore, selectEquity, selectUnrealizedPnl } from "@/lib/store/server-trading-store";
 import { fmtUsd, fmtPct } from "@/lib/trading/engine";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

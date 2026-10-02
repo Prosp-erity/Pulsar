@@ -17,7 +17,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { fmtUsd, fmtPct } from "@/lib/trading/engine";
 import type { StrategyId } from "@/lib/trading/types";

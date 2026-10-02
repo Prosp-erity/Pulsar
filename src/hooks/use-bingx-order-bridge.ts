@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { useLiveTradingStatus } from "@/hooks/use-live-trading-status";
 import { useBingxLiveAccount } from "@/hooks/use-bingx-live-account";
 

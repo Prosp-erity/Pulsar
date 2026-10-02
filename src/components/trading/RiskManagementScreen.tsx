@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { fmtUsd } from "@/lib/trading/engine";
 import { useHydrated } from "@/hooks/use-hydrated";
 import {

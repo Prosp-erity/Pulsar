@@ -1,7 +1,7 @@
 "use client";
 
 import { X, AlertCircle } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { fmtPrice, fmtUsd, fmtPct, timeAgo } from "@/lib/trading/engine";
 import { Button } from "@/components/ui/button";

@@ -1,0 +1,147 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api",
+      "regex": "^/api(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api(?:/)?$"
+    },
+    {
+      "page": "/api/assistant",
+      "regex": "^/api/assistant(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/assistant(?:/)?$"
+    },
+    {
+      "page": "/api/bingx",
+      "regex": "^/api/bingx(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/bingx(?:/)?$"
+    },
+    {
+      "page": "/api/bingx/order",
+      "regex": "^/api/bingx/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/bingx/order(?:/)?$"
+    },
+    {
+      "page": "/api/bybit",
+      "regex": "^/api/bybit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/bybit(?:/)?$"
+    },
+    {
+      "page": "/api/bybit/order",
+      "regex": "^/api/bybit/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/bybit/order(?:/)?$"
+    },
+    {
+      "page": "/api/download-source",
+      "regex": "^/api/download\\-source(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/download\\-source(?:/)?$"
+    },
+    {
+      "page": "/api/engine/control",
+      "regex": "^/api/engine/control(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/engine/control(?:/)?$"
+    },
+    {
+      "page": "/api/engine/state",
+      "regex": "^/api/engine/state(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/engine/state(?:/)?$"
+    },
+    {
+      "page": "/api/engine/status",
+      "regex": "^/api/engine/status(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/engine/status(?:/)?$"
+    },
+    {
+      "page": "/api/okx",
+      "regex": "^/api/okx(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/okx(?:/)?$"
+    },
+    {
+      "page": "/api/okx/order",
+      "regex": "^/api/okx/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/okx/order(?:/)?$"
+    },
+    {
+      "page": "/landing",
+      "regex": "^/landing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/landing(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

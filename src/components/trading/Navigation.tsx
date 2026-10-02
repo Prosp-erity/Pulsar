@@ -1,7 +1,7 @@
 "use client";
 
 import { BarChart3, Bot, LayoutDashboard, Layers, Plug, Shield } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { useLiveTradingStatus } from "@/hooks/use-live-trading-status";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight, SlidersHorizontal, Lock } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";

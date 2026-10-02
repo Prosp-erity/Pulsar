@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { Activity, BarChart3, Calendar, Clock, Download, Loader2, Play, TrendingDown, TrendingUp } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { STRATEGIES } from "@/lib/trading/strategies";
 import { fmtPrice, fmtUsd, fmtPct, timeAgo } from "@/lib/trading/engine";
 import type { BacktestResult, BacktestTrade } from "@/lib/trading/backtest";

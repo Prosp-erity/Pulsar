@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Database, RotateCcw, Trash2 } from "lucide-react";
-import { useTradingStore } from "@/lib/store/trading-store";
+import { useTradingStore } from "@/lib/store/server-trading-store";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -31,6 +31,7 @@ export function SessionPersistence() {
   const trades = useTradingStore((s) => s.trades.length);
   const positions = useTradingStore((s) => s.positions.length);
   const realizedPnl = useTradingStore((s) => s.realizedPnl);
+  const engineStatus = useTradingStore((s) => s.engineStatus);
   const [, force] = useState(0);
 
   // Tick every 5s so "saved Xs ago" stays fresh
@@ -41,6 +42,7 @@ export function SessionPersistence() {
 
   const hasHistory = hydrated && (trades > 0 || positions > 0 || realizedPnl !== 0);
   const displaySaved = hydrated && lastSavedAt > 0;
+  const displayStatus = engineStatus?.ticksProcessed !== undefined;
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -51,7 +53,7 @@ export function SessionPersistence() {
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/[0.03] border border-white/5 text-[10px] font-mono text-muted-foreground cursor-default">
               <Database className="w-3 h-3 text-cyan-300" />
               <span className="hidden sm:inline">
-                {displaySaved ? `saved ${timeAgoShort(lastSavedAt)}` : hydrated ? "no save yet" : "—"}
+                {displaySaved ? `saved ${timeAgoShort(lastSavedAt)}` : hydrated ? "no save yet" : "\u2014"}
               </span>
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
@@ -66,18 +68,26 @@ export function SessionPersistence() {
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-card border-white/10 text-xs">
             <div className="space-y-1 font-mono">
-              <div className="text-cyan-300 font-semibold">Persistent Memory</div>
+              <div className="text-cyan-300 font-semibold">Server Engine Status</div>
+              {displayStatus && (
+                <>
+                  <div>Engine: {engineStatus?.running ? "RUNNING" : "STOPPED"}</div>
+                  <div>Ticks: {engineStatus?.ticksProcessed ?? 0}</div>
+                  <div>Active positions: {engineStatus?.activePositions ?? 0}</div>
+                  <div>Total trades: {engineStatus?.totalTrades ?? 0}</div>
+                </>
+              )}
               <div>
                 Last saved:{" "}
                 {hydrated && lastSavedAt > 0
                   ? new Date(lastSavedAt).toLocaleTimeString("en-US", { hour12: false })
-                  : hydrated ? "never" : "—"}
+                  : hydrated ? "never" : "\u2014"}
               </div>
-              <div>Trades in memory: {hydrated ? trades : "—"}</div>
-              <div>Open positions: {hydrated ? positions : "—"}</div>
-              <div>Realized P&L: {hydrated ? `$${realizedPnl.toFixed(2)}` : "—"}</div>
+              <div>Trades in memory: {hydrated ? trades : "\u2014"}</div>
+              <div>Open positions: {hydrated ? positions : "\u2014"}</div>
+              <div>Realized P&L: {hydrated ? `$${realizedPnl.toFixed(2)}` : "\u2014"}</div>
               <div className="text-muted-foreground pt-1 border-t border-white/10 mt-1">
-                State auto-saves every 3s and survives page reloads.
+                Server engine runs continuously. State persists across page reloads.
               </div>
             </div>
           </TooltipContent>
@@ -107,7 +117,7 @@ export function SessionPersistence() {
                 <AlertDialogTitle>Clear session history?</AlertDialogTitle>
                 <AlertDialogDescription className="text-muted-foreground">
                   This will permanently delete all saved trades, positions, P&L,
-                  and equity curve history from localStorage. Your pair
+                  and equity curve history from the server. Your pair
                   configurations and strategy toggles will be preserved. This
                   action cannot be undone.
                 </AlertDialogDescription>

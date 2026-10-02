@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/bingx": {},
+    "/api/bingx/order": {},
+    "/api/bybit": {},
+    "/api/bybit/order": {},
+    "/api/okx": {},
+    "/api/okx/order": {}
+  }
+}

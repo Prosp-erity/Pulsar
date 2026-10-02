@@ -1,0 +1,19 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/assistant/route": "/api/assistant",
+  "/api/bingx/order/route": "/api/bingx/order",
+  "/api/bingx/route": "/api/bingx",
+  "/api/bybit/order/route": "/api/bybit/order",
+  "/api/bybit/route": "/api/bybit",
+  "/api/download-source/route": "/api/download-source",
+  "/api/engine/control/route": "/api/engine/control",
+  "/api/engine/state/route": "/api/engine/state",
+  "/api/engine/status/route": "/api/engine/status",
+  "/api/okx/order/route": "/api/okx/order",
+  "/api/okx/route": "/api/okx",
+  "/api/route": "/api",
+  "/landing/page": "/landing",
+  "/login/page": "/login",
+  "/page": "/"
+}

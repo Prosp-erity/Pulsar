@@ -9,7 +9,7 @@ import {
   Gauge,
   AlertCircle,
 } from "lucide-react";
-import { useTradingStore, selectEquity, selectUnrealizedPnl } from "@/lib/store/trading-store";
+import { useTradingStore, selectEquity, selectUnrealizedPnl } from "@/lib/store/server-trading-store";
 import { fmtUsd, fmtPct } from "@/lib/trading/engine";
 import { useLiveTradingStatus } from "@/hooks/use-live-trading-status";
 import { useOkxLiveAccount } from "@/hooks/use-okx-live-account";
